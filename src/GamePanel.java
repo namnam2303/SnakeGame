@@ -44,33 +44,11 @@ public class GamePanel extends JPanel implements Runnable {
     private void move() {
         int x = snakeBodyX.get(0);
         int y = snakeBodyY.get(0);
-        switch(direction) {
-            case 'U':
-                if (snakeBodyY.get(0) - UNIT_SIZE >= 0) {
-                    snakeBodyY.set(0,snakeBodyY.get(0) - UNIT_SIZE);
-                } else {
-                    gameOver();
-                }
-                break;
-            case 'D':
-                if (snakeBodyY.get(0) + UNIT_SIZE < HEIGHT - UNIT_SIZE) {
-                    snakeBodyY.set(0,snakeBodyY.get(0) + UNIT_SIZE);
-                } else {
-                    gameOver();
-                }
-                break;
-            case 'L':
-                if (snakeBodyX.get(0) - UNIT_SIZE >= 0) {
-                    snakeBodyX.set(0, snakeBodyX.get(0) - (UNIT_SIZE * 2));
-                } else {
-                    gameOver();
-                }
-            case 'R':
-                if (snakeBodyX.get(0) + UNIT_SIZE < WIDTH) {
-                    snakeBodyX.set(0, snakeBodyX.get(0) + UNIT_SIZE);
-                } else {
-                    gameOver();
-                }
+        switch (direction) {
+            case 'U' -> snakeBodyY.set(0, snakeBodyY.get(0) - UNIT_SIZE);
+            case 'D' -> snakeBodyY.set(0, snakeBodyY.get(0) + UNIT_SIZE);
+            case 'L' -> snakeBodyX.set(0, snakeBodyX.get(0) - (UNIT_SIZE));
+            case 'R' -> snakeBodyX.set(0, snakeBodyX.get(0) + UNIT_SIZE);
         }
             for (int i = 1; i < bodyParts; i++) {
                 int x2 = snakeBodyX.get(i);
@@ -89,6 +67,26 @@ public class GamePanel extends JPanel implements Runnable {
                 gameOver();
             }
         }
+        switch(direction) {
+            case 'U':
+                if (snakeBodyY.get(0) - UNIT_SIZE < 0) {
+                    gameOver();
+                }
+                break;
+            case 'D':
+                if (snakeBodyY.get(0) + UNIT_SIZE >= HEIGHT - UNIT_SIZE) {
+                    gameOver();
+                }
+                break;
+            case 'L':
+                if (snakeBodyX.get(0) - UNIT_SIZE < 0) {
+                    gameOver();
+                }
+            case 'R':
+                if (snakeBodyX.get(0) + UNIT_SIZE >= WIDTH - UNIT_SIZE) {
+                    gameOver();
+                }
+        }
     }
     private void gameOver() {
         JOptionPane.showMessageDialog(this, "YOUR SCORE: " + applesEaten, "Game over", JOptionPane.INFORMATION_MESSAGE);
@@ -97,7 +95,7 @@ public class GamePanel extends JPanel implements Runnable {
     private void newApple(){
         appleX = random.nextInt(WIDTH/UNIT_SIZE)*UNIT_SIZE;
         appleY = random.nextInt(HEIGHT/UNIT_SIZE)*UNIT_SIZE;
-        while (snakeBodyY.contains(appleY) || snakeBodyX.contains(appleX) || appleY >= HEIGHT - UNIT_SIZE || appleX >= WIDTH - UNIT_SIZE) {
+        while (snakeBodyY.contains(appleY) || snakeBodyX.contains(appleX) || appleY >= HEIGHT - (2 * UNIT_SIZE) || appleX >= WIDTH - (2 * UNIT_SIZE)) {
             appleX = random.nextInt(WIDTH/UNIT_SIZE)*UNIT_SIZE ;
             appleY = random.nextInt(HEIGHT/UNIT_SIZE)*UNIT_SIZE;
         }
@@ -127,8 +125,8 @@ public class GamePanel extends JPanel implements Runnable {
     private void eatenApple() {
         if (snakeBodyY.get(0) == appleY && snakeBodyX.get(0) == appleX) {
             bodyParts++;
-            snakeBodyX.add(snakeBodyX.get(bodyParts - 2));
-            snakeBodyY.add(snakeBodyY.get(bodyParts - 2));
+            snakeBodyX.add(snakeBodyX.get(bodyParts - 3));
+            snakeBodyY.add(snakeBodyY.get(bodyParts - 3));
             applesEaten++;
             newApple();
         }
@@ -137,9 +135,9 @@ public class GamePanel extends JPanel implements Runnable {
     @Override
     public void run() {
         while (running) {
+            checkCollision();
             move();
             eatenApple();
-            checkCollision();
             repaint();
             try {
                 Thread.sleep(100);
